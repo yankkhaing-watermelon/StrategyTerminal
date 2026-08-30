@@ -1,61 +1,28 @@
-# Bursa Strategy Terminal
+# StrategyTerminal — data pipeline for the D1 worker
 
-A fully independent 3-strategy Bursa terminal — **Trending**, **Momentum**
-(`gaining_momentum`), **M.E.T.A.** (`meta_leader`) — deployed as a single
-Cloudflare Worker, driven by GitHub Actions.
+This repo feeds the Cloudflare worker `bursa-musangking-strategy-terminal`
+(the app with Today / Preview / Open / Perf / Health tabs). The worker stores
+and serves data and runs the buy/sell state machine; THIS repo produces the
+data via GitHub Actions and POSTs it to the worker.
 
-- **Today** — official after-close screen, auto-run **17:18 MYT** on trading
-  days, strength-ranked, with **NEW / REMOVED** lifecycle and a **20-day**
-  removal ledger.
-- **Preview** — intraday screen, run **manually** from the ▶ Run button. Writes
-  `preview.json` only; it never touches the official lifecycle.
+## Pieces
+- `kernel/`      vendored screening engine from watermelon (pinned SOURCE_SHA)
+- `rank.py`      strength score (0-100) per strategy
+- `pipeline.py`  fetches Bursa, runs Trending/Momentum/M.E.T.A., POSTs to worker
+- `.github/workflows/close.yml`         official, 17:18 MYT  -> /api/publish
+- `.github/workflows/strategy-scan.yml` preview (Run button) -> /api/preview
 
-## How it stays 100% consistent with watermelon
+## Required GitHub Actions secrets (repo -> Settings -> Secrets -> Actions)
+- `WORKER_URL`     = https://bursa-musangking-strategy-terminal.yankhaing.workers.dev
+- `PUBLISH_TOKEN`  = the SAME value as the worker's PUBLISH_TOKEN secret
 
-The screening kernel is **vendored verbatim** from
-`yankkhaing-watermelon/watermelon` into `kernel/` (pinned in
-`kernel/SOURCE_SHA`). This repo never calls watermelon's `export_scan.py` — it
-imports the same `data_fetcher` / `screener` / `indicators` / `universe`
-directly, so matches and indicator values are bit-identical. Only two things are
-new and live outside the kernel: `rank.py` (strength score) and `lifecycle.py`
-(NEW/REMOVED + 20-day retention). See `rank.py` for the accepted strength
-formula — note it will **not** reproduce the old worker's Strength numbers,
-whose formula wasn't recoverable.
+## First run
+Actions -> "Close Screen (Official)" -> Run workflow. When it finishes, the
+site's Today updates. The Run button on the site triggers strategy-scan.yml.
 
-## Layout
-```
-kernel/            vendored, unmodified (config, data_fetcher, indicators, screener, universe)
-rank.py            strength score (0-100)
-lifecycle.py       NEW/REMOVED diff + data/active.json + data/removals.json (20d)
-export_terminal.py entrypoint: --mode close | preview
-data/              committed JSON the worker serves (today, preview, history, removals, active)
-worker/            single Worker: UI + /api/* proxy + /run dispatch
-.github/workflows/ close.yml (cron+dispatch) · preview.yml (dispatch only)
-```
-
-## Setup
-
-1. **Create the repo** and push this tree. Enable Actions (Settings → Actions →
-   General → allow workflows).
-
-2. **First official run** (seeds `today.json` and the lifecycle files):
-   Actions → *Close Screen (Official)* → Run workflow. Wait for the commit.
-
-3. **Deploy the worker** (overwrites the old build, keeps the URL):
-   - Edit `worker/wrangler.toml`: set `GH_REPO` to the new repo name; confirm
-     `name` matches the worker behind `gentle-mountain-b39e…workers.dev`.
-   - `cd worker && wrangler deploy`
-   - `wrangler secret put GH_DISPATCH_TOKEN` — a fine-grained PAT scoped to this
-     repo with **Actions: Read and write** (and Contents: Read if the repo is
-     private). This is the only secret; it lets the ▶ Run button dispatch the
-     preview workflow.
-
-4. Open the URL. **Today** loads the after-close screen. **Preview** + ▶ Run
-   dispatches an intraday screen and polls until it publishes (~a few minutes).
-
-## Tuning
-- Strength weights / scalers: `rank.py` (`SCALERS`, the three formulas).
-- Removal retention window: `RETENTION_DAYS` in `lifecycle.py` (default 20).
-- Strategy parameters: `kernel/config.py` `STRATEGIES` — but editing kernel
-  files breaks the bit-parity guarantee; re-pin `SOURCE_SHA` if you do.
-- Cron time: `.github/workflows/close.yml` (`18 9 * * 1-5` = 17:18 MYT).
+## Notes
+- The worker requires a one-time historical bootstrap before /api/publish will
+  accept data. Your live app already shows positions/events, so it is already
+  bootstrapped. If a close run ever returns HTTP 409 "bootstrap required",
+  the D1 was reset — tell me and we add a bootstrap step.
+- Editing kernel/ breaks bit-parity with watermelon; re-pin SOURCE_SHA if you do.
