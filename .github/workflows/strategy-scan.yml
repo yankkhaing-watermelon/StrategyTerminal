@@ -1,26 +1,25 @@
-name: Close Screen (Official)
+name: strategy-scan
 
-# Official after-close screen. 17:18 MYT on Bursa trading days == 09:18 UTC.
-# Builds the payload and POSTs it to the worker's /api/publish.
+# Manual/intraday PREVIEW. This is the workflow the app's Run button triggers
+# (the worker dispatches strategy-scan.yml). POSTs to the worker's /api/preview,
+# so it never changes the official record.
 on:
-  schedule:
-    - cron: "18 9 * * 1-5"
   workflow_dispatch:
 
 concurrency:
-  group: close-screen
-  cancel-in-progress: false
+  group: preview-scan
+  cancel-in-progress: true
 
 jobs:
   screen:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11", cache: pip }
       - run: pip install -r requirements.txt
-      - name: Run official screen and publish
+      - name: Run preview screen and publish
         env:
           MARKET: MYX
           WORKER_URL: ${{ secrets.WORKER_URL }}
@@ -28,4 +27,4 @@ jobs:
           TV_MAX_WORKERS: ${{ vars.TV_MAX_WORKERS || '5' }}
           TV_BARS: ${{ vars.TV_BARS || '300' }}
           TV_CONNECT_GAP: ${{ vars.TV_CONNECT_GAP || '0.25' }}
-        run: python pipeline.py --mode close
+        run: python pipeline.py --mode preview
