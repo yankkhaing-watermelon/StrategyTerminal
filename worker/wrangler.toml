@@ -1,18 +1,19 @@
-# Reuses the EXISTING worker so `wrangler deploy` overwrites the old build
-# in place and keeps the gentle-mountain-b39e.yankhaing.workers.dev address.
-# If your dashboard shows a different worker name for that URL, set it here.
-name = "gentle-mountain-b39e"
+name = "bursa-musangking-strategy-terminal"
 main = "worker.js"
 compatibility_date = "2024-11-01"
 
+[assets]
+directory = "../public"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bursa-musangking-strategy-terminal"
+database_id = "4c9bbff9-8007-4769-90b3-e79bbce4d338"
+
 [vars]
-GH_OWNER = "yankkhaing-watermelon"      # <-- your GitHub owner
-GH_REPO  = "PUT_NEW_REPO_NAME_HERE"     # <-- the new terminal repo
+APP_TITLE = "Bursa Strategy Terminal"
+GH_OWNER = "yankkhaing-watermelon"
+GH_REPO  = "StrategyTerminal"
 GH_BRANCH = "main"
 PREVIEW_WORKFLOW = "preview.yml"
-
-# One secret only. Run once:
-#   wrangler secret put GH_DISPATCH_TOKEN
-# Fine-grained PAT scoped to the new repo with:
-#   Contents: Read   (raw.githubusercontent reads are public, but keep for private repos)
-#   Actions:  Read and write   (needed to workflow_dispatch the preview screen)
