@@ -42,6 +42,11 @@ import rank                  # noqa: E402  (ours)
 STRATEGIES = ("trending", "gaining_momentum", "meta_leader")
 RANKING_MODEL = "strength-v1.0.0"
 
+# Trending: RSI above this no longer disqualifies a stock. It stays in the
+# screener and is flagged `overbought` so the UI can highlight it.
+# (kernel config still says rsi_max=75; the override is terminal-only.)
+OVERBOUGHT_RSI = 75.0
+
 
 def _f(v: Any):
     try:
@@ -76,6 +81,8 @@ def build_payload() -> dict[str, Any]:
     # 1) strategy hits (kernel), restricted to the three terminal strategies
     strat_params = {k: config.STRATEGIES[k] for k in STRATEGIES
                     if config.STRATEGIES.get(k, {}).get("enabled", False)}
+    if "trending" in strat_params:
+        strat_params["trending"] = {**strat_params["trending"], "rsi_max": 100.0}
     hits = screener.scan(by_code, strat_params)
 
     # per-strategy hit symbol sets
@@ -98,6 +105,7 @@ def build_payload() -> dict[str, Any]:
                 "adx": _f(r.get("adx")),
                 "vol_ratio": _f(r.get("vol_ratio")),
                 "roc10": _f(r.get("roc10")),
+                "overbought": (_f(r.get("rsi")) or 0.0) > OVERBOUGHT_RSI,
                 "strength_score": score,
                 "strength_model": RANKING_MODEL,
                 "strength_components": {},
