@@ -15,7 +15,8 @@ database_id = "4c9bbff9-8007-4769-90b3-e79bbce4d338"
 [vars]
 APP_TITLE = "Bursa Strategy Terminal"
 GH_OWNER = "yankkhaing-watermelon"
-GH_REPO  = "StrategyTerminal"
+GH_REPO = "StrategyTerminal"
 GH_BRANCH = "main"
 PREVIEW_WORKFLOW = "preview.yml"
-# Redeploy root URL Open filters
+
+# Rebuild after Git access update
