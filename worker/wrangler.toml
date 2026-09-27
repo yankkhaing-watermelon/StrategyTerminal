@@ -18,3 +18,4 @@ GH_OWNER = "yankkhaing-watermelon"
 GH_REPO  = "StrategyTerminal"
 GH_BRANCH = "main"
 PREVIEW_WORKFLOW = "preview.yml"
+# Redeploy root URL Open filters
