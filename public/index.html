@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07111e">
+  <title>Bursa Strategy Terminal</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header>
+  <div class="brand"><b>MK</b><span>Bursa Strategy Terminal</span></div>
+  <div class="header-actions">
+    <button id="manualRun" class="wide" title="Run a preview scan only">▶ Run</button>
+    <button id="themeToggle" title="Switch theme" aria-label="Switch theme">☀</button>
+    <button id="refresh" title="Refresh data" aria-label="Refresh data">↻</button>
+  </div>
+</header>
+
+<main>
+<section class="page active" data-page="today">
+  <div class="title">
+    <small>FULL BURSA · OFFICIAL AFTER-CLOSE VIEW</small>
+    <h1>Today</h1>
+    <div class="statusline"><span id="runState">Loading…</span><span id="lastUpdated">Last update —</span></div>
+  </div>
+
+  <div id="stats" class="stats"></div>
+
+  <div class="preview-banner">
+    Official after-close record. Strength ranking, membership and lifecycle data here are the accepted daily strategy state.
+  </div>
+
+  <div class="section">
+    <div class="row">
+      <h2>Official Screener</h2>
+      <span id="todayRawSource" class="name"></span>
+    </div>
+    <div id="todayRawTabs" class="strategy-tabs"></div>
+    <div id="todayMembershipTabs" class="membership-tabs"></div>
+    <div id="todayMembershipSummary" class="strategy-sub membership-summary"></div>
+    <div id="todayRawList" class="stack preview-list-gap"></div>
+  </div>
+
+  <div class="section">
+    <h2>Official Confluence</h2>
+    <div id="confluence" class="stack"></div>
+  </div>
+
+  <div class="section">
+    <div class="row">
+      <h2>Official Lifecycle Changes</h2>
+      <button id="reviewAll" class="link">Mark reviewed</button>
+    </div>
+    <div class="filters">
+      <button class="on" data-event="ALL">All</button>
+      <button data-event="BUY_SIGNAL">Buy</button>
+      <button data-event="ENTRY_CONFIRMED">Entry</button>
+      <button data-event="NEAR_SELL">Near sell</button>
+      <button data-event="SELL">Sell</button>
+    </div>
+    <div id="todayList" class="stack"></div>
+  </div>
+</section>
+
+<section class="page" data-page="preview">
+  <div class="title">
+    <small>FULL BURSA · CURRENT MARKET VIEW</small>
+    <h1>Preview</h1>
+    <div class="statusline">
+      <span id="previewStatus">Preview only · official records unchanged</span>
+      <span id="previewStamp">Loading…</span>
+    </div>
+  </div>
+
+  <div id="previewStats" class="stats"></div>
+
+  <div class="preview-banner">
+    Same Trending, Momentum and M.E.T.A. rules as the original MusangKing screener.
+    Preview does not change official positions, history, performance or trades.
+  </div>
+
+  <div class="section">
+    <div class="row">
+      <h2>Raw Screener</h2>
+      <span id="previewRawSource" class="name"></span>
+    </div>
+    <div id="previewRawTabs" class="strategy-tabs"></div>
+    <div id="previewMembershipTabs" class="membership-tabs"></div>
+    <div id="previewMembershipSummary" class="strategy-sub membership-summary"></div>
+    <div id="previewRawList" class="stack preview-list-gap"></div>
+  </div>
+
+  <div class="section">
+    <h2>Potential Confluence</h2>
+    <div id="previewConfluence" class="stack"></div>
+  </div>
+
+  <div class="section">
+    <div class="row">
+      <h2>Potential Signals</h2>
+      <span class="name">Lifecycle preview</span>
+    </div>
+    <div id="previewEventFilters" class="filters">
+      <button class="on" data-preview-event="ALL">All</button>
+      <button data-preview-event="BUY_SIGNAL">Buy</button>
+      <button data-preview-event="ENTRY_CONFIRMED">Entry</button>
+      <button data-preview-event="NEAR_SELL">Near sell</button>
+      <button data-preview-event="SELL">Sell</button>
+    </div>
+    <div id="previewSignals" class="stack"></div>
+  </div>
+</section>
+
+<section class="page" data-page="open">
+  <div class="title"><small>LIVE STRATEGY STATES</small><h1>Open</h1></div>
+  <div class="strategy-tabs">
+    <button class="on" data-strategy="ALL">Combined</button>
+    <button data-strategy="trending">Trending</button>
+    <button data-strategy="gaining_momentum">Momentum</button>
+    <button data-strategy="meta_leader">M.E.T.A.</button>
+  </div>
+  <input id="openSearch" placeholder="Search ticker or company">
+  <div id="openList" class="stack"></div>
+</section>
+
+<section class="page" data-page="scanner">
+  <div class="title"><small>FULL BURSA UNIVERSE</small><h1>Signal history</h1></div>
+  <div class="strategy-tabs">
+    <button class="on" data-history="ALL">All</button>
+    <button data-history="trending">Trending</button>
+    <button data-history="gaining_momentum">Momentum</button>
+    <button data-history="meta_leader">M.E.T.A.</button>
+  </div>
+  <input id="historySearch" placeholder="Search ticker">
+  <div id="historyList" class="stack"></div>
+</section>
+
+<section class="page" data-page="performance">
+  <div class="title"><small>FORWARD LIVE RECORD</small><h1>Performance</h1></div>
+  <div id="perfCards" class="stack"></div>
+  <div class="section"><h2>Closed trades</h2><div id="tradeList" class="stack"></div></div>
+</section>
+
+<section class="page" data-page="health">
+  <div class="title"><small>DATA COVERAGE MONITORING</small><h1>System Health</h1></div>
+  <div id="healthCard" class="stack"></div>
+  <div class="note">
+    There is no fixed 900-stock acceptance threshold. The scan processes every valid counter with a bar on the selected trade date.
+    Illiquid/non-trading counters with no new bar are carried forward unchanged rather than being given a fabricated price bar.
+  </div>
+</section>
+</main>
+
+<nav>
+  <button class="on" data-nav="today">◉<span>Today</span></button>
+  <button data-nav="preview">◌<span>Preview</span></button>
+  <button data-nav="open">◎<span>Open</span></button>
+  <button data-nav="scanner">⌁<span>History</span></button>
+  <button data-nav="performance">▥<span>Perf</span></button>
+  <button data-nav="health">⚙<span>Health</span></button>
+</nav>
+
+<script type="module" src="/app.js"></script>
+<script type="module" src="/today-strength.js"></script>
+<script type="module" src="/preview.js"></script>
+</body>
+</html>
