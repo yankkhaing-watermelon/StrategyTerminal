@@ -5,6 +5,7 @@ compatibility_date = "2024-11-01"
 [assets]
 directory = "../public"
 binding = "ASSETS"
+run_worker_first = ["/", "/index.html", "/app", "/api/*", "/open-ux.js"]
 
 [[d1_databases]]
 binding = "DB"
