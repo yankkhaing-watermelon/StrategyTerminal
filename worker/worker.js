@@ -1439,7 +1439,8 @@ async function openUxManifest(request, env, url) {
 }
 __name(openUxManifest, "openUxManifest");
 function openUxScript() {
-  return new Response("(" + openUxClient.toString() + ")();", {
+  const shim = "var __name=function(t,v){try{Object.defineProperty(t,'name',{value:v,configurable:true})}catch(e){}return t},__name2=__name;";
+  return new Response(shim + "(" + openUxClient.toString() + ")();", {
     headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "no-store" }
   });
 }
